@@ -1,0 +1,103 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+# Import and create dataframe then print sheet
+data <- read.csv(file = 'C:/Users/maxpr/Downloads/AB_NYC_2019(2) (1).csv')
+print(data)
+```
+
+```{r}
+#replacing NA's with 0 
+data[is.na(data)] = 0
+```
+
+```{r}
+# Summarises each group that is an int
+print("Summary of Price")
+summary(data$price)
+print("Summary of Minimum Nights")
+summary(data$minimum_nights)
+print("Summary of Availability 365")
+summary(data$availability_365)
+print("Summary of Reviews per Month")
+summary(data$reviews_per_month)
+print("Summary of Number of Reviews")
+summary(data$number_of_reviews)
+print("Summary of calculated_host_listings_count")
+summary(data$calculated_host_listings_count)
+```
+
+```{r}
+# Print the top 3 most expensive
+retval <- subset(data, price == max(price))
+print(retval)
+
+min(data$price)
+```
+
+```{r}
+# Find mean then print
+result_mean <- mean(data$price)
+result_median <- median(data$price)
+result_mean <-round(result_mean, digits = 0)
+result_median <- round(result_median, digits = 0)
+print(result_mean)
+print(result_median)
+
+```
+
+```{r}
+# Libraries
+library(tidyverse)
+
+# plot
+p <- data %>%
+  filter( price<1000 ) %>%
+  ggplot( aes(x=price)) +
+    geom_histogram( binwidth=10, fill="#3385cc", color="#e9ecef", alpha=0.9) +
+    ggtitle("A Graph to Show How Many AirBnB's Had What Price")
+p
+```
+
+```{r}
+library(dplyr)
+
+group_region = data %>% group_by(neighbourhood_group)  %>%
+                    summarise(Mean = mean(price),
+                              Median = median(price),
+                              .groups = 'drop')
+group_region$Mean <-round(group_region$Mean, digits = 0)
+print(group_region)
+```
+
+```{r}
+# Mean Graph
+ggplot(group_region, aes(fill="", y=Mean, x=neighbourhood_group)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_viridis(discrete = T) +
+    ggtitle("Mean Price of property") +
+    xlab("Region")
+# Median Graph
+ggplot(group_region, aes(fill="", y=Median, x=neighbourhood_group)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_viridis(discrete = T) +
+    ggtitle("Median Price of property") +
+    xlab("Region")
+```
+
+```{r}
+library(RColorBrewer)
+Palette <- brewer.pal(5, "Set2") 
+
+# You can change the border of each area with the classical parameters:
+pie(group_region$Mean , main="% of the mean price of each region", labels = c("Bronx - 13.96%","Brooklyn - 19.9%","Manhattan - 31.62%","Queens - 16.05%","Staten Island - 18.46%"), border="white", col=Palette )
+
+Palette <- brewer.pal(5, "Set2") 
+
+# You can change the border of each area with the classical parameters:
+pie(group_region$Median , main="% of the median price of each region", labels = c("Bronx - 14.29%","Brooklyn - 19.78%","Manhattan - 32.97%","Queens - 16.48%","Staten Island - 16.48%"), border="white", col=Palette )
+```
